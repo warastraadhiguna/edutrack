@@ -19,9 +19,9 @@ class PeriodsTable
                 TextColumn::make('name')->label('Nama')->searchable(['name']),
                 TextColumn::make('default')
                     ->label('Default')
-                    ->formatStateUsing(fn ($state) => $state === 1 ? 'Iya' : 'Tidak')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'Iya' : 'Tidak')
                     ->badge()
-                    ->color(fn ($state) => $state === 1 ? 'success' : 'gray'),
+                    ->color(fn ($state) => $state == 1 ? 'success' : 'gray'),
                 TextColumn::make('user.name')->label('User'),
             ])
             ->filters([
