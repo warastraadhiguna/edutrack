@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Auth;
 class RegistrationResource extends Resource
 {
     protected static ?string $model = Registration::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?int $navigationSort = 3;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::PencilSquare;
+    protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
     protected static ?string $recordTitleAttribute = 'Registration';
 
     public static function form(Schema $schema): Schema

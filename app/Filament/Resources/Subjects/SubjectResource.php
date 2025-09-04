@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Auth;
 class SubjectResource extends Resource
 {
     protected static ?string $model = Subject::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?int $navigationSort = 7;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::BookOpen;
+    protected static \UnitEnum|string|null $navigationGroup = 'Master Data';
     protected static ?string $recordTitleAttribute = 'Subject';
 
     public static function form(Schema $schema): Schema

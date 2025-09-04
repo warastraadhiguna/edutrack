@@ -32,7 +32,7 @@ return new class () extends Migration {
             'role_id' => 1,
             'name' => 'superadmin',
             'email' => 'superadmin@gmail.com',
-            'password' => Hash::make('9517'),
+            'password' => Hash::make('12345'),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Auth;
 class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?int $navigationSort = 2;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
+    protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
     protected static ?string $recordTitleAttribute = 'Schedule';
 
     public static function form(Schema $schema): Schema

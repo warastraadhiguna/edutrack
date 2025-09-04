@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 class ProfileResource extends Resource
 {
     protected static ?string $model = User::class;
-
+    protected static ?int $navigationSort = 1;
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-user';
 
     public static function getEloquentQuery(): Builder

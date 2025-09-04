@@ -25,7 +25,7 @@ class PeriodForm
                     ->offColor('danger')
                     ->required()
                     ->dehydrateStateUsing(fn (bool $state) => $state ? 1 : 0)
-                    ->afterStateHydrated(fn ($state, $set) => $set('default', $state === 1))  ,
+                    ->afterStateHydrated(fn ($state, $set) => $set('default', $state == 1))  ,
             ]);
     }
 }

@@ -19,10 +19,10 @@ class PeriodResource extends Resource
 {
     protected static ?string $model = Period::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    protected static ?int $navigationSort = 2;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Clock;
+    protected static ?int $navigationSort = 6;
     protected static ?string $recordTitleAttribute = 'Period';
-
+    protected static \UnitEnum|string|null $navigationGroup = 'Master Data';
     public static function form(Schema $schema): Schema
     {
         return PeriodForm::configure($schema);

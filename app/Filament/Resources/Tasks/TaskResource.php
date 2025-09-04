@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Builder;
 class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?int $navigationSort = 4;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::RectangleStack;
+    protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
     protected static ?string $recordTitleAttribute = 'Task';
 
     public static function getEloquentQuery(): Builder

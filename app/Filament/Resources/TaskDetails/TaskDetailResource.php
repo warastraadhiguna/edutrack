@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Auth;
 class TaskDetailResource extends Resource
 {
     protected static ?string $model = TaskDetail::class;
-
+    protected static ?int $navigationSort = 5;
+    protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     public static function getEloquentQuery(): Builder
     {
