@@ -49,7 +49,13 @@ class TaskDetailsTable
                     })
                     ->openUrlInNewTab()
                     // tooltip pakai state (nilainya = document_link)
-                    ->tooltip(fn ($state) => $state)
+                    ->tooltip(fn ($state) => $state),
+
+                    TextColumn::make('created_at')
+                        ->label('Submit Time')
+                        ->dateTime('d-m-Y H:i:s')
+                        ->timezone('Asia/Jakarta')
+
             ])
             ->filters([
                 //
