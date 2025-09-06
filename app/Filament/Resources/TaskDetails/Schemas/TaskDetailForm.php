@@ -74,6 +74,7 @@ class TaskDetailForm
 
                     return Task::query()
                         ->where('schedule_id', $scheduleId)
+                        ->where('index', '>', 0)
                         ->orderBy('index') // urutkan sesuai kebutuhanmu
                         ->get()
                         ->mapWithKeys(fn ($t) => [
@@ -101,10 +102,24 @@ class TaskDetailForm
                             ->ignore($record?->id), // penting saat Edit agar record sendiri tidak dianggap duplikat
                 ])
                 ->validationMessages([
-                    'exists' => 'Task tidak valid untuk schedule terpilih.',
-                    'unique' => 'Data sudah diinput (kombinasi User & Task sama).',
+                    'exists' => 'Task is invalid for the selected schedule.',
+                    'unique' => 'Data has been entered (same combination of User & Task).',
                 ]),
-                TextInput::make('document_link')->label('Document Link')->required(),
+                TextInput::make('document_link')->label('Document Link')->required()
+                ->validationMessages([
+                    'url' => 'URL Format invalid.',
+                ])
+                ->rule(function () {
+                    return function (string $attribute, $value, \Closure $fail) {
+                        $host = strtolower(parse_url($value, PHP_URL_HOST) ?? '');
+                        $allowed = ['drive.google.com', 'docs.google.com'];
+
+                        if (! in_array($host, $allowed, true)) {
+                            $fail('Should be a google drive link  (drive.google.com / docs.google.com).');
+                        }
+                    };
+                })
+                ->helperText('Contoh: https://drive.google.com/file/d/FILE_ID/view'),
                 Hidden::make('user_id')
                     ->default(fn () => Auth::id())
                     ->visibleOn('create')

@@ -9,6 +9,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -19,7 +20,23 @@ class TaskDetailsTable
         return $table
             ->recordUrl(fn ($record) => null)
             ->columns([
-                TextColumn::make('user.name')->label('Student'),
+                TextColumn::make('user.name')
+                ->label('Student')
+                ->formatStateUsing(function ($state, $record) {
+                    $email = $record->user?->email;
+                    $prefix = $email ? Str::before($email, '@') : '—';
+                    $name = $record->user?->name ?? '—';
+                    return "{$prefix}-{$name}";
+                })
+                ->searchable(
+                    query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('user', function (Builder $q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    }
+                )   // cari pakai nama & email
+                ->tooltip(fn ($record) => $record->user?->email),
                 TextColumn::make('task.schedule.subject.name')->label('Subject'),
                 TextColumn::make('task.schedule.note')->label('Note'),
                 TextColumn::make('task.name')->label('Name'),
