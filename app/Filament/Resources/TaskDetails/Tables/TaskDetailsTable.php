@@ -74,6 +74,7 @@ class TaskDetailsTable
                         ->label('Submit Time')
                         ->dateTime('d-m-Y H:i:s')
                         ->timezone('Asia/Jakarta')
+                        ->sortable()
 
             ])
             ->filters([
