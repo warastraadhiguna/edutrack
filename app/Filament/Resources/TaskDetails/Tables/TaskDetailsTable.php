@@ -36,10 +36,11 @@ class TaskDetailsTable
                         });
                     }
                 )   // cari pakai nama & email
-                ->tooltip(fn ($record) => $record->user?->email),
-                TextColumn::make('task.schedule.subject.name')->label('Subject'),
+                ->tooltip(fn ($record) => $record->user?->email)
+                ->sortable(),
+                TextColumn::make('task.schedule.subject.name')->label('Subject')->sortable(),
                 TextColumn::make('task.schedule.note')->label('Note'),
-                TextColumn::make('task.name')->label('Name'),
+                TextColumn::make('task.name')->label('Name')->sortable(),
                 TextColumn::make('task.percentage')->label('Percentage'),
 
                 TextInputColumn::make('score') // atau 'score' kalau kolommu itu
@@ -49,7 +50,8 @@ class TaskDetailsTable
                     ->extraInputAttributes(['type' => 'number','step' => '1','min' => '0','max' => '100'])
                     ->sortable()
                     // non-superadmin: bisa melihat nilainya, tapi tidak bisa mengedit
-                    ->disabled(fn () => Auth::user()?->role?->name !== 'superadmin'),
+                    ->disabled(fn () => Auth::user()?->role?->name !== 'superadmin')
+                    ->sortable(),
                 TextColumn::make('document_link')
                     ->label('Link')
                     // tampilkan teks pendek saja
