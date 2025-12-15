@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\TaskDetails\Tables;
 
+use App\Models\Subject;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -78,7 +80,28 @@ class TaskDetailsTable
 
             ])
             ->filters([
-                //
+                SelectFilter::make('subject_id')
+                    ->label('Subject')
+                    ->options(fn () => Subject::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        $subjectId = $data['value'] ?? null;
+
+                        return $query->when($subjectId, function (Builder $q) use ($subjectId) {
+                            $q->whereHas('task.schedule', function (Builder $qq) use ($subjectId) {
+                                $qq->where('subject_id', $subjectId);
+                            });
+                        });
+                    })
+                    ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
+
+                SelectFilter::make('task_id')
+                    ->label('Task')
+                    ->relationship('task', 'name') // karena task_details punya relasi task()
+                    ->searchable()
+                    ->preload()
+                    ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
             ])
             ->recordActions([
                 EditAction::make(),
