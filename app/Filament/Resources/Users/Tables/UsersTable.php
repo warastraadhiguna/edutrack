@@ -17,7 +17,7 @@ class UsersTable
             ->recordUrl(fn ($record) => null)
             ->columns([
                 TextColumn::make('name')->label('Nama')->searchable(),
-                TextColumn::make('email')->label('Email'),
+                TextColumn::make('email')->label('Email')->searchable(),
                 TextColumn::make('role.name')->label('Role'),
                 TextColumn::make('user.name')->label('User'),
             ])

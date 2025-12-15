@@ -17,8 +17,8 @@ class SchedulesTable
             ->recordUrl(fn ($record) => null)
             ->columns([
                 TextColumn::make('period.name')->label('Period'),
-                TextColumn::make('subject.code')->label('Code'),
-                TextColumn::make('subject.name')->label('Subject'),
+                TextColumn::make('subject.code')->label('Code')->searchable(),
+                TextColumn::make('subject.name')->label('Subject')->searchable(),
                 TextColumn::make('note')->label('Note'),
                 TextColumn::make('user.name')->label('User'),
             ])
