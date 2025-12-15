@@ -7,7 +7,6 @@ use App\Filament\Resources\TaskDetails\Pages\EditTaskDetail;
 use App\Filament\Resources\TaskDetails\Pages\ListTaskDetails;
 use App\Filament\Resources\TaskDetails\Schemas\TaskDetailForm;
 use App\Filament\Resources\TaskDetails\Tables\TaskDetailsTable;
-use App\Models\Period;
 use App\Models\TaskDetail;
 use BackedEnum;
 use Filament\Resources\Resource;

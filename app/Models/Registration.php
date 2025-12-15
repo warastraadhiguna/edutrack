@@ -10,6 +10,7 @@ class Registration extends Model
         'user_id',
         'student_user_id',
         'schedule_id',
+        'grade'        
     ];
 
     public function user()
