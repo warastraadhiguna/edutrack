@@ -20,6 +20,9 @@ class TaskDetailsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->persistFiltersInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()        
             ->recordUrl(fn ($record) => null)
             ->columns([
                 TextColumn::make('user.name')
@@ -102,6 +105,20 @@ class TaskDetailsTable
                     ->searchable()
                     ->preload()
                     ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
+                    SelectFilter::make('score_state')
+                        ->label('Score')
+                        ->options([
+                            'zero' => 'Score = 0',
+                            'gt0'  => 'Score > 0',
+                        ])
+                        ->query(function (Builder $query, array $data): Builder {
+                            $value = $data['value'] ?? null;
+
+                            return $query
+                                ->when($value === 'zero', fn (Builder $q) => $q->where('score', 0))
+                                ->when($value === 'gt0', fn (Builder $q) => $q->where('score', '>', 0));
+                        })
+                        ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),                    
             ])
             ->recordActions([
                 EditAction::make(),

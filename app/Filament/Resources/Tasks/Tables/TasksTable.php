@@ -18,6 +18,9 @@ class TasksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->persistFiltersInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()        
             ->recordUrl(fn ($record) => null)
             ->defaultSort('index', 'asc')
             ->columns([
