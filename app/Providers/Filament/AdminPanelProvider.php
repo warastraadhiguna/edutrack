@@ -29,7 +29,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->globalSearch(false)
-            ->collapsibleNavigation()
             ->spa()
             ->sidebarWidth('15rem')
             ->colors([
