@@ -15,7 +15,7 @@ return new class () extends Migration {
             $table->smallInteger('user_id')->unsigned()->nullable();
             $table->smallInteger('student_user_id')->unsigned()->nullable();
             $table->bigInteger('schedule_id')->unsigned()->nullable();
-            $table->string('grade', 1);            
+            $table->string('grade', 2);            
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
