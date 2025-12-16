@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Registrations\Tables;
 
 use App\Models\Subject;
+use App\Models\Task;
 use App\Models\TaskDetail;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,30 +32,52 @@ class RegistrationsTable
                 TextColumn::make('schedule.subject.name')->label('Subject'),
                 TextColumn::make('schedule.note')->label('Note'),
                 TextColumn::make('user.name')->label('User'),
+                TextColumn::make('task_progress')
+                    ->label('Submited Task')
+                    ->state(function ($record) {
+                        $studentId  = $record->student_user_id;
+                        $scheduleId = $record->schedule_id;
+
+                        $totalTasks = Task::query()
+                            ->where('schedule_id', $scheduleId)
+                            ->count();
+
+                        $filled = TaskDetail::query()
+                            ->where('user_id', $studentId)
+                            ->whereHas('task', fn ($q) => $q->where('schedule_id', $scheduleId))
+                            ->count();
+
+                        return "{$filled} / {$totalTasks}";
+                    }),                
                 TextColumn::make('total_score')
                     ->label('Total Score')
                     ->alignRight()
                     ->state(function ($record) {
+                        $studentId  = $record->student_user_id ?? null;
+                        $scheduleId = $record->schedule_id ?? null;
+
+                        if (!$studentId || !$scheduleId) {
+                            return 0;
+                        }
+
                         return TaskDetail::query()
-                            ->where('user_id', $record->student_user_id)
-                            ->whereHas('task', fn ($q) => $q->where('schedule_id', $record->schedule_id))
-                            ->sum('score');
-                    })
-                    ->sortable(),                
+                            ->where('user_id', $studentId)
+                            ->whereHas('task', fn ($q) => $q->where('schedule_id', $scheduleId))
+                            ->sum('score') ?? 0;
+                    }),           
                 TextInputColumn::make('grade')
                     ->label('Grade')
                     ->alignCenter()
                     ->rules([
                         'nullable',
-                        Rule::in(['A', 'AB', 'B', 'BC', 'C', 'D', 'E']),
+                        'regex:/^(A|AB|B|BC|C|D|E)$/i',
                     ])
-                    // auto uppercase biar konsisten
                     ->extraInputAttributes([
                         'style' => 'text-transform: uppercase',
+                        'oninput' => 'this.value = this.value.toUpperCase().trim()',
                     ])
-                    // selain superadmin: hanya bisa lihat, tidak bisa edit
                     ->disabled(fn () => Auth::user()?->role?->name !== 'superadmin')
-                    ->sortable(),                
+                    ->sortable(),        
             ])
             ->filters([
                 SelectFilter::make('subject_id')
