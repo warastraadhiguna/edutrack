@@ -27,8 +27,8 @@ class RegistrationsTable
             ->persistSortInSession()           
             ->recordUrl(fn ($record) => null)
             ->columns([
-                TextColumn::make('studentUser.name')->label('Student'),
-                TextColumn::make('studentUser.email')->label('Email'),
+                TextColumn::make('studentUser.name')->label('Student')->searchable()->sortable(),
+                TextColumn::make('studentUser.email')->label('Email')->searchable()->sortable(),
                 TextColumn::make('schedule.subject.name')->label('Subject'),
                 TextColumn::make('schedule.note')->label('Note'),
                 TextColumn::make('user.name')->label('User'),
