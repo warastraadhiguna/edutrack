@@ -23,7 +23,7 @@ class TasksTable
             ->persistSearchInSession()
             ->persistSortInSession()        
             ->recordUrl(fn ($record) => null)
-            ->defaultSort('index', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('name')->label('Name'),
                 TextColumn::make('subject_note')
