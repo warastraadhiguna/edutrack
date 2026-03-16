@@ -26,8 +26,10 @@ class TasksTable
             ->defaultSort('index', 'asc')
             ->columns([
                 TextColumn::make('name')->label('Name'),
-                TextColumn::make('schedule.subject.name')->label('Subject'),
-                TextColumn::make('schedule.note')->label('Note'),
+                TextColumn::make('schedule.subject.name')
+                    ->label('Subject / Note')
+                    ->wrap()
+                    ->description(fn ($record): string => $record->schedule?->note ?: '-', position: 'below'),
                 TextInputColumn::make('percentage')
                     ->label('Percentage')
                     ->alignRight()
@@ -38,7 +40,7 @@ class TasksTable
                         'step' => '1',
                         'min' => '0',
                         'max' => '100',
-                        'style' => 'width: 3.25rem; min-width: 3.25rem;',
+                        'style' => 'width: 3.9rem; min-width: 3.9rem;',
                     ])
                     ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
                     ->sortable(),
@@ -51,7 +53,7 @@ class TasksTable
                         'type' => 'number',
                         'step' => '1',
                         'min' => '0',
-                        'style' => 'width: 3rem; min-width: 3rem;',
+                        'style' => 'width: 3.6rem; min-width: 3.6rem;',
                     ])
                     ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
                     ->sortable(),
