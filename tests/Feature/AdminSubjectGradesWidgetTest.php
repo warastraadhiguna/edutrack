@@ -115,9 +115,9 @@ class AdminSubjectGradesWidgetTest extends TestCase
             ->keyBy('subject_name');
 
         $this->assertCount(2, $rows);
-        $this->assertSame(1, (int) $rows['Algoritma']->empty_grade_count);
+        $this->assertSame(1, (int) $rows['Algoritma']->filled_grade_count);
         $this->assertSame(2, (int) $rows['Algoritma']->total_students);
-        $this->assertSame(1, (int) $rows['Basis Data']->empty_grade_count);
+        $this->assertSame(0, (int) $rows['Basis Data']->filled_grade_count);
         $this->assertSame(1, (int) $rows['Basis Data']->total_students);
         $this->assertFalse($rows->has('Mata Kuliah Lama'));
     }

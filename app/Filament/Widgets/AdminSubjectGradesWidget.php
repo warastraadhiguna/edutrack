@@ -24,7 +24,7 @@ class AdminSubjectGradesWidget extends TableWidget
         return Registration::query()
             ->selectRaw('MIN(registrations.id) as id')
             ->selectRaw('subjects.name as subject_name')
-            ->selectRaw("SUM(CASE WHEN registrations.grade IS NULL OR registrations.grade = '' THEN 1 ELSE 0 END) as empty_grade_count")
+            ->selectRaw("SUM(CASE WHEN registrations.grade IS NOT NULL AND registrations.grade <> '' THEN 1 ELSE 0 END) as filled_grade_count")
             ->selectRaw('COUNT(*) as total_students')
             ->join('schedules', 'schedules.id', '=', 'registrations.schedule_id')
             ->join('subjects', 'subjects.id', '=', 'schedules.subject_id')
@@ -55,8 +55,8 @@ class AdminSubjectGradesWidget extends TableWidget
                 TextColumn::make('subject_name')
                     ->label('Mata Kuliah Pada Periode Ini'),
                 TextColumn::make('grade_progress')
-                    ->label('Grade Kosong / Total Mahasiswa')
-                    ->state(fn ($record): string => "{$record->empty_grade_count}/{$record->total_students}"),
+                    ->label('Grade Terisi / Total Mahasiswa')
+                    ->state(fn ($record): string => "{$record->filled_grade_count}/{$record->total_students}"),
             ]);
     }
 
