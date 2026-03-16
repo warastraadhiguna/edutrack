@@ -32,14 +32,25 @@ class TasksTable
                     ->label('Percentage')
                     ->alignRight()
                     ->rules(['required', 'numeric', 'min:0', 'max:100'])
-                    ->extraInputAttributes(['type' => 'number', 'step' => '0.01', 'min' => '0', 'max' => '100'])
+                    ->extraInputAttributes([
+                        'type' => 'number',
+                        'step' => '1',
+                        'min' => '0',
+                        'max' => '100',
+                        'style' => 'width: 5rem; min-width: 5rem;',
+                    ])
                     ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
                     ->sortable(),
                 TextInputColumn::make('index')
                     ->label('Indeks')
                     ->alignRight()
                     ->rules(['required', 'integer', 'min:0'])
-                    ->extraInputAttributes(['type' => 'number', 'step' => '1', 'min' => '0'])
+                    ->extraInputAttributes([
+                        'type' => 'number',
+                        'step' => '1',
+                        'min' => '0',
+                        'style' => 'width: 4.5rem; min-width: 4.5rem;',
+                    ])
                     ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
                     ->sortable(),
                 TextColumn::make('user.name')->label('User'),
