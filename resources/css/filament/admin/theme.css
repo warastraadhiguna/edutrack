@@ -8,6 +8,21 @@
     padding-inline: 10px;
 }
 
+.task-inline-input.fi-ta-text-input {
+    width: auto;
+    min-width: 0;
+    padding-inline: 0;
+    padding-block: 0.5rem;
+}
+
+.task-inline-input .fi-input-wrp {
+    width: auto;
+}
+
+.task-inline-input .fi-input {
+    text-align: center;
+}
+
 .fi-wi-stats-overview-stat,
 .dashboard-logout-widget-card {
     min-height: 140px;
