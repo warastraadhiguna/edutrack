@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,8 +28,20 @@ class TasksTable
                 TextColumn::make('name')->label('Name'),
                 TextColumn::make('schedule.subject.name')->label('Subject'),
                 TextColumn::make('schedule.note')->label('Note'),
-                TextColumn::make('percentage')->label('Percentage'),
-                TextColumn::make('index')->label('Indeks'),
+                TextInputColumn::make('percentage')
+                    ->label('Percentage')
+                    ->alignRight()
+                    ->rules(['required', 'numeric', 'min:0', 'max:100'])
+                    ->extraInputAttributes(['type' => 'number', 'step' => '0.01', 'min' => '0', 'max' => '100'])
+                    ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
+                    ->sortable(),
+                TextInputColumn::make('index')
+                    ->label('Indeks')
+                    ->alignRight()
+                    ->rules(['required', 'integer', 'min:0'])
+                    ->extraInputAttributes(['type' => 'number', 'step' => '1', 'min' => '0'])
+                    ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
+                    ->sortable(),
                 TextColumn::make('user.name')->label('User'),
             ])
             ->filters([
@@ -46,15 +59,18 @@ class TasksTable
                             });
                         });
                     })
-                    ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
+                    ->visible(fn () => in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true)),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true)),
+                DeleteAction::make()
+                    ->visible(fn () => in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true)),
                 ]),
             ]);
     }

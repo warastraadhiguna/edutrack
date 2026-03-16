@@ -14,22 +14,27 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
+
     protected static ?int $navigationSort = 4;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::RectangleStack;
+
     protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
+
     protected static ?string $recordTitleAttribute = 'Task';
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->whereHas('schedule', fn (Builder $q) => $q->where('period_id', Period::where('default', '1')->first()->id));
+            ->whereHas('schedule', fn (Builder $query) => $query->where('period_id', Period::where('default', '1')->first()->id));
     }
+
     public static function form(Schema $schema): Schema
     {
         return TaskForm::configure($schema);
@@ -58,6 +63,26 @@ class TaskResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->role->name === 'superadmin'; // ✅ Hanya admin yang bisa melihat
+        return in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true);
+    }
+
+    public static function canCreate(): bool
+    {
+        return in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true);
     }
 }
