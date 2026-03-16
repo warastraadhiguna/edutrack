@@ -25,7 +25,10 @@ class RegistrationResource extends Resource
     protected static ?string $recordTitleAttribute = 'Registration';
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->whereHas('schedule.period', function (Builder $query): void {
+                $query->where('default', 1);
+            });
 
         // Jika punya superadmin & harus bisa lihat semua, lewati filter:
         if (Auth::user()?->role->name === 'superadmin') {

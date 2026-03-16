@@ -24,7 +24,10 @@ class TaskDetailResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->whereHas('task.schedule.period', function (Builder $query): void {
+                $query->where('default', 1);
+            });
 
         // Jika punya superadmin & harus bisa lihat semua, lewati filter:
         if (Auth::user()?->role->name === 'superadmin') {
