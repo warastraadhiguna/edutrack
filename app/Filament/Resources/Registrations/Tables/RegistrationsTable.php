@@ -27,10 +27,34 @@ class RegistrationsTable
             ->persistSortInSession()           
             ->recordUrl(fn ($record) => null)
             ->columns([
-                TextColumn::make('studentUser.name')->label('Student')->searchable()->sortable(),
-                TextColumn::make('studentUser.email')->label('Email')->searchable()->sortable(),
-                TextColumn::make('schedule.subject.name')->label('Subject'),
-                TextColumn::make('schedule.note')->label('Note'),
+                TextColumn::make('student_email')
+                    ->label('Student')
+                    ->state(fn ($record): array => [
+                        $record->studentUser?->name ?? '-',
+                        $record->studentUser?->email ?? '-',
+                    ])
+                    ->listWithLineBreaks()
+                    ->wrap()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('studentUser', function (Builder $q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query
+                            ->join('users as student_users', 'registrations.student_user_id', '=', 'student_users.id')
+                            ->orderBy('student_users.name', $direction)
+                            ->select('registrations.*');
+                    }),
+                TextColumn::make('subject_note')
+                    ->label('Subject')
+                    ->state(fn ($record): array => [
+                        $record->schedule?->subject?->name ?? '-',
+                        $record->schedule?->note ?? '-',
+                    ])
+                    ->listWithLineBreaks()
+                    ->wrap(),
                 TextColumn::make('user.name')->label('User'),
                 TextColumn::make('task_progress')
                     ->label('Submited Task')
