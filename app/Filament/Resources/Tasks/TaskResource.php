@@ -32,6 +32,10 @@ class TaskResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->withCount('taskDetails')
+            ->with([
+                'schedule' => fn ($query) => $query->withCount('registrations'),
+            ])
             ->whereHas('schedule', fn (Builder $query) => $query->where('period_id', Period::where('default', '1')->first()->id));
     }
 

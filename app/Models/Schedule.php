@@ -27,4 +27,9 @@ class Schedule extends Model
     {
         return $this->belongsTo(Period::class);
     }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
+    }
 }

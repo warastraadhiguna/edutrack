@@ -34,6 +34,13 @@ class TasksTable
                     ])
                     ->listWithLineBreaks()
                     ->wrap(),
+                TextColumn::make('submission_progress')
+                    ->label('Submitted')
+                    ->state(fn ($record): string => sprintf(
+                        '%d / %d',
+                        $record->task_details_count ?? 0,
+                        $record->schedule?->registrations_count ?? 0,
+                    )),
                 TextInputColumn::make('percentage')
                     ->label('Percentage')
                     ->alignRight()

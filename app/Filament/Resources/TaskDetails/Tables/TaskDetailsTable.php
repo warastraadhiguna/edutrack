@@ -2,11 +2,17 @@
 
 namespace App\Filament\Resources\TaskDetails\Tables;
 
+use App\Models\Task;
+use App\Models\Period;
+use App\Models\Schedule;
 use App\Models\Subject;
+use Filament\Forms\Components\Select as FormsSelect;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -19,6 +25,8 @@ class TaskDetailsTable
 {
     public static function configure(Table $table): Table
     {
+        $defaultPeriodId = Period::query()->where('default', true)->value('id');
+
         return $table
             ->persistFiltersInSession()
             ->persistSearchInSession()
@@ -43,8 +51,14 @@ class TaskDetailsTable
                 )   // cari pakai nama & email
                 ->tooltip(fn ($record) => $record->user?->email)
                 ->sortable(),
-                TextColumn::make('task.schedule.subject.name')->label('Subject')->sortable(),
-                TextColumn::make('task.schedule.note')->label('Note'),
+                TextColumn::make('subject_note')
+                    ->label('Subject')
+                    ->state(fn ($record): array => [
+                        $record->task?->schedule?->subject?->name ?? '-',
+                        $record->task?->schedule?->note ?? '-',
+                    ])
+                    ->listWithLineBreaks()
+                    ->wrap(),
                 TextColumn::make('task.name')->label('Name')->sortable(),
                 TextColumn::make('task.percentage')->label('Percentage'),
 
@@ -85,7 +99,24 @@ class TaskDetailsTable
             ->filters([
                 SelectFilter::make('subject_id')
                     ->label('Subject')
-                    ->options(fn () => Subject::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => Subject::query()
+                        ->when(
+                            $defaultPeriodId,
+                            fn (Builder $query) => $query->whereIn(
+                                'id',
+                                Schedule::query()
+                                    ->select('subject_id')
+                                    ->where('period_id', $defaultPeriodId)
+                            ),
+                        )
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray())
+                    ->modifyFormFieldUsing(
+                        fn (FormsSelect $field) => $field
+                            ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('/task_id.value', null))
+                    )
                     ->searchable()
                     ->preload()
                     ->query(function (Builder $query, array $data): Builder {
@@ -101,7 +132,30 @@ class TaskDetailsTable
 
                 SelectFilter::make('task_id')
                     ->label('Task')
-                    ->relationship('task', 'name') // karena task_details punya relasi task()
+                    ->modifyFormFieldUsing(
+                        fn (FormsSelect $field) => $field
+                            ->options(
+                                fn (Get $get) => Task::query()
+                                    ->when(
+                                        $defaultPeriodId,
+                                        fn (Builder $query) => $query->whereHas(
+                                            'schedule',
+                                            fn (Builder $scheduleQuery) => $scheduleQuery->where('period_id', $defaultPeriodId)
+                                        ),
+                                    )
+                                    ->when(
+                                        $get('/subject_id.value'),
+                                        fn (Builder $query, $subjectId) => $query->whereHas(
+                                            'schedule',
+                                            fn (Builder $scheduleQuery) => $scheduleQuery->where('subject_id', $subjectId)
+                                        ),
+                                    )
+                                    ->orderBy('index')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                            )
+                    )
                     ->searchable()
                     ->preload()
                     ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
