@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\TaskDetails\Tables\TaskDetailsTable;
 use App\Filament\Resources\TaskDetails\TaskDetailResource;
 use App\Models\Period;
 use App\Models\Schedule;
+use App\Models\Subject;
 use App\Models\Task;
 use App\Models\TaskDetail;
 use App\Models\User;
@@ -60,6 +62,83 @@ class TaskDetailResourceTest extends TestCase
         $this->assertContains($ownDefaultTaskDetail->id, $visibleIds);
         $this->assertNotContains($ownNonDefaultTaskDetail->id, $visibleIds);
         $this->assertNotContains($otherUsersDefaultTaskDetail->id, $visibleIds);
+    }
+
+    public function test_task_filter_options_are_limited_by_subject_and_default_period(): void
+    {
+        $superadmin = User::query()->findOrFail(1);
+
+        $defaultPeriod = Period::query()->create([
+            'user_id' => $superadmin->id,
+            'name' => 'Current Period',
+            'default' => 1,
+        ]);
+
+        $archivedPeriod = Period::query()->create([
+            'user_id' => $superadmin->id,
+            'name' => 'Archived Period',
+            'default' => 0,
+        ]);
+
+        $subjectA = Subject::query()->create([
+            'user_id' => $superadmin->id,
+            'code' => 'SUBA',
+            'name' => 'Subject A',
+        ]);
+
+        $subjectB = Subject::query()->create([
+            'user_id' => $superadmin->id,
+            'code' => 'SUBB',
+            'name' => 'Subject B',
+        ]);
+
+        $subjectACurrentSchedule = Schedule::query()->create([
+            'user_id' => $superadmin->id,
+            'period_id' => $defaultPeriod->id,
+            'subject_id' => $subjectA->id,
+        ]);
+
+        $subjectBCurrentSchedule = Schedule::query()->create([
+            'user_id' => $superadmin->id,
+            'period_id' => $defaultPeriod->id,
+            'subject_id' => $subjectB->id,
+        ]);
+
+        $subjectAArchivedSchedule = Schedule::query()->create([
+            'user_id' => $superadmin->id,
+            'period_id' => $archivedPeriod->id,
+            'subject_id' => $subjectA->id,
+        ]);
+
+        $subjectACurrentTask = Task::query()->create([
+            'user_id' => $superadmin->id,
+            'schedule_id' => $subjectACurrentSchedule->id,
+            'name' => 'Subject A Current Task',
+            'percentage' => 10,
+            'index' => 1,
+        ]);
+
+        Task::query()->create([
+            'user_id' => $superadmin->id,
+            'schedule_id' => $subjectBCurrentSchedule->id,
+            'name' => 'Subject B Current Task',
+            'percentage' => 10,
+            'index' => 1,
+        ]);
+
+        Task::query()->create([
+            'user_id' => $superadmin->id,
+            'schedule_id' => $subjectAArchivedSchedule->id,
+            'name' => 'Subject A Archived Task',
+            'percentage' => 10,
+            'index' => 1,
+        ]);
+
+        $options = TaskDetailsTable::getTaskOptions($subjectA->id, $defaultPeriod->id);
+
+        $this->assertSame([
+            $subjectACurrentTask->id => 'Subject A Current Task',
+        ], $options);
     }
 
     /**
