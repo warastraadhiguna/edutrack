@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tasks\Tables;
 
+use App\Models\Schedule;
 use App\Models\Subject;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -16,12 +17,29 @@ use Illuminate\Support\Facades\Auth;
 
 class TasksTable
 {
+    /**
+     * @return array<int, string>
+     */
+    public static function getSubjectOptions(): array
+    {
+        return Subject::query()
+            ->whereIn(
+                'id',
+                Schedule::query()
+                    ->select('subject_id')
+                    ->whereHas('period', fn (Builder $query) => $query->where('default', true))
+            )
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
     public static function configure(Table $table): Table
     {
         return $table
             ->persistFiltersInSession()
             ->persistSearchInSession()
-            ->persistSortInSession()        
+            ->persistSortInSession()
             ->recordUrl(fn ($record) => null)
             ->defaultSort('created_at', 'desc')
             ->columns([
@@ -73,7 +91,7 @@ class TasksTable
             ->filters([
                 SelectFilter::make('subject_id')
                     ->label('Subject')
-                    ->options(fn () => Subject::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => self::getSubjectOptions())
                     ->searchable()
                     ->preload()
                     ->query(function (Builder $query, array $data): Builder {
@@ -100,5 +118,4 @@ class TasksTable
                 ]),
             ]);
     }
-
 }
