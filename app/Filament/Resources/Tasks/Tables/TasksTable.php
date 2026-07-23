@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -72,6 +73,13 @@ class TasksTable
                         'style' => 'width: 5rem; min-width: 5rem;',
                     ])
                     ->disabled(fn () => ! in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
+                    ->summarize(
+                        Sum::make('percentage_total')
+                            ->label('Total')
+                            ->visible(fn ($livewire): bool => filled(
+                                $livewire->getTableFilterState('subject_id')['value'] ?? null
+                            ))
+                    )
                     ->sortable(),
                 TextInputColumn::make('index')
                     ->label('Indeks')
