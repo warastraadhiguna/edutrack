@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Registrations\Pages\ListRegistrations;
 use App\Filament\Resources\Registrations\RegistrationResource;
 use App\Models\Period;
 use App\Models\Registration;
@@ -12,6 +13,7 @@ use App\Models\TaskDetail;
 use App\Models\User;
 use App\Services\RegistrationExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -138,7 +140,12 @@ class RegistrationResourceTest extends TestCase
 
         $pdfResponse = $service->downloadPdf($query);
         $this->assertSame('application/pdf', $pdfResponse->headers->get('content-type'));
-        $this->assertStringStartsWith('%PDF-', $pdfResponse->getContent());
+
+        ob_start();
+        $pdfResponse->sendContent();
+        $pdfContent = ob_get_clean();
+
+        $this->assertStringStartsWith('%PDF-', $pdfContent);
 
         $excelResponse = $service->downloadExcel($query);
         $excelPath = $excelResponse->getFile()->getPathname();
@@ -149,6 +156,21 @@ class RegistrationResourceTest extends TestCase
 
         $zip->close();
         unlink($excelPath);
+    }
+
+    public function test_pdf_export_action_uses_a_livewire_safe_file_download(): void
+    {
+        $superadmin = User::query()->findOrFail(1);
+        $this->actingAs($superadmin);
+
+        Period::query()->create([
+            'name' => 'Current Period',
+            'default' => 1,
+        ]);
+
+        Livewire::test(ListRegistrations::class)
+            ->callTableAction('exportPdf')
+            ->assertFileDownloaded(contentType: 'application/pdf');
     }
 
     /**

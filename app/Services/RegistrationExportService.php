@@ -8,13 +8,13 @@ use App\Models\TaskDetail;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RegistrationExportService
 {
@@ -145,14 +145,22 @@ class RegistrationExportService
             ->deleteFileAfterSend();
     }
 
-    public function downloadPdf(Builder $query): Response
+    public function downloadPdf(Builder $query): StreamedResponse
     {
-        return Pdf::loadView('exports.registrations-pdf', [
+        $content = Pdf::loadView('exports.registrations-pdf', [
             'rows' => $this->rows($query),
             'generatedAt' => now('Asia/Jakarta'),
         ])
             ->setPaper('a4', 'landscape')
-            ->download($this->fileName('pdf'));
+            ->output();
+
+        return response()->streamDownload(
+            static function () use ($content): void {
+                echo $content;
+            },
+            $this->fileName('pdf'),
+            ['Content-Type' => 'application/pdf'],
+        );
     }
 
     private function fileName(string $extension): string
