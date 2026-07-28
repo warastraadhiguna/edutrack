@@ -5,17 +5,21 @@ namespace App\Filament\Resources\Registrations\Tables;
 use App\Models\Subject;
 use App\Models\Task;
 use App\Models\TaskDetail;
+use App\Models\User;
+use App\Services\RegistrationExportService;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class RegistrationsTable
 {
@@ -24,14 +28,15 @@ class RegistrationsTable
         return $table
             ->persistFiltersInSession()
             ->persistSearchInSession()
-            ->persistSortInSession()           
+            ->persistSortInSession()
+            ->defaultSort(fn (Builder $query): Builder => self::orderByStudentEmail($query))
             ->recordUrl(fn ($record) => null)
             ->columns([
                 TextColumn::make('student_email')
                     ->label('Student')
                     ->state(fn ($record): array => [
                         $record->studentUser?->name ?? '-',
-                        $record->studentUser?->email ?? '-',
+                        RegistrationExportService::shortEmail($record->studentUser?->email),
                     ])
                     ->listWithLineBreaks()
                     ->wrap()
@@ -42,10 +47,7 @@ class RegistrationsTable
                         });
                     })
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query
-                            ->join('users as student_users', 'registrations.student_user_id', '=', 'student_users.id')
-                            ->orderBy('student_users.name', $direction)
-                            ->select('registrations.*');
+                        return self::orderByStudentEmail($query, $direction);
                     }),
                 TextColumn::make('subject_note')
                     ->label('Subject')
@@ -59,7 +61,7 @@ class RegistrationsTable
                 TextColumn::make('task_progress')
                     ->label('Submited Task')
                     ->state(function ($record) {
-                        $studentId  = $record->student_user_id;
+                        $studentId = $record->student_user_id;
                         $scheduleId = $record->schedule_id;
 
                         $totalTasks = Task::query()
@@ -72,15 +74,15 @@ class RegistrationsTable
                             ->count();
 
                         return "{$filled} / {$totalTasks}";
-                    }),                
+                    }),
                 TextColumn::make('total_score')
                     ->label('Total Score')
                     ->alignRight()
                     ->state(function ($record) {
-                        $studentId  = $record->student_user_id ?? null;
+                        $studentId = $record->student_user_id ?? null;
                         $scheduleId = $record->schedule_id ?? null;
 
-                        if (!$studentId || !$scheduleId) {
+                        if (! $studentId || ! $scheduleId) {
                             return 0;
                         }
 
@@ -88,7 +90,7 @@ class RegistrationsTable
                             ->where('user_id', $studentId)
                             ->whereHas('task', fn ($q) => $q->where('schedule_id', $scheduleId))
                             ->sum('score') ?? 0;
-                    }),           
+                    }),
                 TextInputColumn::make('grade')
                     ->label('Grade')
                     ->alignCenter()
@@ -101,16 +103,32 @@ class RegistrationsTable
                         'oninput' => 'this.value = this.value.toUpperCase().trim()',
                     ])
                     ->disabled(fn () => Auth::user()?->role?->name !== 'superadmin')
-                    ->sortable(),        
+                    ->sortable(),
+            ])
+            ->headerActions([
+                ActionGroup::make([
+                    Action::make('exportPdf')
+                        ->label('Export PDF')
+                        ->icon(Heroicon::OutlinedDocumentArrowDown)
+                        ->action(fn ($livewire) => app(RegistrationExportService::class)
+                            ->downloadPdf($livewire->getTableQueryForExport())),
+                    Action::make('exportExcel')
+                        ->label('Export Excel')
+                        ->icon(Heroicon::OutlinedTableCells)
+                        ->action(fn ($livewire) => app(RegistrationExportService::class)
+                            ->downloadExcel($livewire->getTableQueryForExport())),
+                ])
+                    ->label('Export')
+                    ->icon(Heroicon::OutlinedArrowDownTray)
+                    ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
             ])
             ->filters([
                 SelectFilter::make('subject_id')
                     ->label('Subject')
-                    ->options(fn () =>
-                        Subject::query()
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray()
+                    ->options(fn () => Subject::query()
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->toArray()
                     )
                     ->searchable()
                     ->preload()
@@ -124,20 +142,20 @@ class RegistrationsTable
                         });
                     })
                     ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
-                    SelectFilter::make('grade_status')
-                        ->label('Penilaian')
-                        ->options([
-                            'not_graded' => 'Belum dinilai',
-                            'graded'     => 'Sudah dinilai',
-                        ])
-                        ->query(function (Builder $query, array $data): Builder {
-                            $value = $data['value'] ?? null;
+                SelectFilter::make('grade_status')
+                    ->label('Penilaian')
+                    ->options([
+                        'not_graded' => 'Belum dinilai',
+                        'graded' => 'Sudah dinilai',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
 
-                            return $query
-                                ->when($value === 'not_graded', fn (Builder $q) => $q->whereNull('grade'))
-                                ->when($value === 'graded', fn (Builder $q) => $q->whereNotNull('grade'));
-                        })
-                        ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),                    
+                        return $query
+                            ->when($value === 'not_graded', fn (Builder $q) => $q->whereNull('grade'))
+                            ->when($value === 'graded', fn (Builder $q) => $q->whereNotNull('grade'));
+                    })
+                    ->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
             ])
             ->recordActions([
                 EditAction::make()
@@ -150,5 +168,15 @@ class RegistrationsTable
                     DeleteBulkAction::make()->visible(fn () => Auth::user()?->role?->name === 'superadmin'),
                 ]),
             ]);
+    }
+
+    public static function orderByStudentEmail(Builder $query, string $direction = 'asc'): Builder
+    {
+        return $query->orderBy(
+            User::query()
+                ->select('email')
+                ->whereColumn('users.id', 'registrations.student_user_id'),
+            $direction,
+        );
     }
 }
