@@ -20,6 +20,7 @@ class BrandingTest extends TestCase
     {
         $this->get('/admin/login')
             ->assertOk()
+            ->assertSee('fi-width-5xl', escape: false)
             ->assertSee('WAN Edutrack')
             ->assertSee('wan-edutrack.png', escape: false)
             ->assertSee('Selamat datang kembali');

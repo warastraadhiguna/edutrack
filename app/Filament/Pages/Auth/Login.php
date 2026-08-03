@@ -19,6 +19,11 @@ class Login extends BaseLogin
         return Width::FiveExtraLarge;
     }
 
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::FiveExtraLarge;
+    }
+
     public function hasLogo(): bool
     {
         return false;
