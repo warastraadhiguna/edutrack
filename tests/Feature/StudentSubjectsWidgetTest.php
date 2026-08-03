@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class StudentSubjectsWidgetTest extends TestCase
@@ -56,6 +57,28 @@ class StudentSubjectsWidgetTest extends TestCase
         $this->assertContains($ownRegistrationOne->id, $visibleIds);
         $this->assertContains($ownRegistrationTwo->id, $visibleIds);
         $this->assertNotContains($otherRegistration->id, $visibleIds);
+    }
+
+    public function test_it_displays_the_logged_in_students_drive_folder_link(): void
+    {
+        $student = User::factory()->create(['role_id' => 3]);
+        $creator = User::query()->findOrFail(1);
+        $this->actingAs($student);
+
+        $period = Period::query()->create([
+            'name' => '2026 Genap',
+            'default' => 1,
+        ]);
+
+        $registration = $this->createRegistration($student, $creator, $period, 'Pemrograman Web');
+        $driveLocation = 'https://drive.google.com/drive/folders/student-folder';
+        $registration->update(['drive_location' => $driveLocation]);
+
+        Livewire::test(StudentSubjectsWidget::class)
+            ->assertCanSeeTableRecords([$registration])
+            ->assertTableColumnStateSet('drive_location', $driveLocation, $registration)
+            ->assertSee('Open Folder')
+            ->assertSee($driveLocation, escape: false);
     }
 
     private function createRegistration(User $student, User $creator, Period $period, string $subjectName): Registration

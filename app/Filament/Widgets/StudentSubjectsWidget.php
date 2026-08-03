@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Registration;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentSubjectsWidget extends TableWidget
 {
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public static function canView(): bool
     {
@@ -41,6 +42,13 @@ class StudentSubjectsWidget extends TableWidget
                 TextColumn::make('schedule.subject.name')
                     ->label('Nama Subject')
                     ->formatStateUsing(fn (?string $state): string => $state ?: '-'),
+                TextColumn::make('drive_location')
+                    ->label('Folder')
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? 'Open Folder' : '-')
+                    ->url(fn (Registration $record): ?string => $record->drive_location)
+                    ->openUrlInNewTab()
+                    ->icon(Heroicon::OutlinedFolderOpen)
+                    ->color('primary'),
                 TextColumn::make('schedule.period.name')
                     ->label('Periode')
                     ->formatStateUsing(fn (?string $state): string => $state ?: '-'),
