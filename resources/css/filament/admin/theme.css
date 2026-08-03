@@ -3,6 +3,374 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*.blade.php';
 
+.wan-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    height: 100%;
+    color: #0f172a;
+    white-space: nowrap;
+}
+
+.wan-brand-logo-symbol {
+    position: relative;
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 2.5rem;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    background: #dbeafe;
+    box-shadow: 0 6px 16px rgb(29 78 216 / 20%);
+}
+
+.wan-brand-logo-symbol img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.35);
+}
+
+.wan-brand-logo-text {
+    font-size: 1rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.dark .wan-brand-logo {
+    color: #f8fafc;
+}
+
+.fi-topbar {
+    border-bottom-color: rgb(191 219 254 / 70%);
+    background: rgb(255 255 255 / 92%);
+    backdrop-filter: blur(16px);
+}
+
+.dark .fi-topbar {
+    border-bottom-color: rgb(30 64 175 / 35%);
+    background: rgb(15 23 42 / 92%);
+}
+
+.wan-login-body {
+    background: #eff6ff;
+}
+
+.wan-login-body .fi-simple-layout {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at 8% 8%, rgb(56 189 248 / 22%), transparent 28rem),
+        radial-gradient(circle at 92% 88%, rgb(37 99 235 / 18%), transparent 30rem),
+        linear-gradient(145deg, #eff6ff 0%, #f8fafc 48%, #eef2ff 100%);
+}
+
+.wan-login-body .fi-simple-layout::before,
+.wan-login-body .fi-simple-layout::after {
+    position: absolute;
+    z-index: -1;
+    width: 18rem;
+    height: 18rem;
+    border: 1px solid rgb(59 130 246 / 15%);
+    border-radius: 9999px;
+    content: '';
+}
+
+.wan-login-body .fi-simple-layout::before {
+    top: -8rem;
+    right: -5rem;
+}
+
+.wan-login-body .fi-simple-layout::after {
+    bottom: -9rem;
+    left: -6rem;
+}
+
+.wan-login-body .fi-simple-main {
+    margin-block: 0;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 1.75rem;
+    background: rgb(255 255 255 / 94%);
+    box-shadow: 0 30px 80px rgb(15 23 42 / 18%);
+}
+
+.wan-login-body .fi-simple-page-content {
+    gap: 0;
+}
+
+.wan-login-body .fi-simple-header {
+    display: none;
+}
+
+.wan-login-grid {
+    display: grid;
+    min-height: min(44rem, calc(100dvh - 3rem));
+    grid-template-columns: minmax(0, 1.08fr) minmax(25rem, 0.92fr);
+}
+
+.wan-login-visual {
+    position: relative;
+    display: flex;
+    min-height: 38rem;
+    overflow: hidden;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.25rem;
+    color: white;
+    background-image:
+        linear-gradient(150deg, rgb(3 28 64 / 24%), rgb(2 38 80 / 78%)),
+        var(--wan-login-image);
+    background-position: center;
+    background-size: cover;
+}
+
+.wan-login-visual::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(2 6 23 / 72%), transparent 55%);
+    content: '';
+}
+
+.wan-login-visual-badge,
+.wan-login-visual-copy {
+    position: relative;
+    z-index: 2;
+}
+
+.wan-login-visual-badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid rgb(255 255 255 / 24%);
+    border-radius: 9999px;
+    background: rgb(15 23 42 / 32%);
+    box-shadow: 0 8px 28px rgb(2 6 23 / 18%);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(12px);
+}
+
+.wan-login-visual-badge-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: #38bdf8;
+    box-shadow: 0 0 0 5px rgb(56 189 248 / 18%);
+}
+
+.wan-login-visual-copy {
+    max-width: 31rem;
+}
+
+.wan-login-kicker {
+    color: #7dd3fc;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+}
+
+.wan-login-visual-copy h2 {
+    margin-top: 0.65rem;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 1;
+}
+
+.wan-login-visual-copy > p:last-child {
+    margin-top: 1rem;
+    color: #dbeafe;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.wan-login-visual-glow {
+    position: absolute;
+    z-index: 1;
+    border-radius: 9999px;
+    filter: blur(1px);
+}
+
+.wan-login-visual-glow-one {
+    top: 14%;
+    right: 8%;
+    width: 9rem;
+    height: 9rem;
+    border: 1px solid rgb(125 211 252 / 32%);
+}
+
+.wan-login-visual-glow-two {
+    top: 20%;
+    right: 14%;
+    width: 4rem;
+    height: 4rem;
+    background: rgb(14 165 233 / 16%);
+    box-shadow: 0 0 60px rgb(56 189 248 / 30%);
+}
+
+.wan-login-form-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2rem, 5vw, 4.75rem);
+    background: rgb(255 255 255 / 96%);
+}
+
+.wan-login-mobile-brand {
+    display: none;
+}
+
+.wan-login-form-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.wan-login-form-icon {
+    display: inline-flex;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    color: #2563eb;
+    background: #dbeafe;
+    box-shadow: inset 0 0 0 1px rgb(37 99 235 / 10%);
+}
+
+.wan-login-form-icon svg {
+    width: 1.45rem;
+    height: 1.45rem;
+}
+
+.wan-login-form-heading h1 {
+    margin-top: 0.2rem;
+    color: #0f172a;
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.wan-login-form-heading .wan-login-kicker {
+    color: #2563eb;
+}
+
+.wan-login-form-description {
+    margin-top: 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.65;
+}
+
+.wan-login-form-content {
+    margin-top: 2rem;
+}
+
+.wan-login-form-content .fi-fo-field-wrp-label span {
+    font-weight: 650;
+}
+
+.wan-login-form-content .fi-input-wrp {
+    border-radius: 0.85rem;
+}
+
+.wan-login-form-content .fi-btn {
+    min-height: 2.8rem;
+    border-radius: 0.85rem;
+    box-shadow: 0 10px 24px rgb(37 99 235 / 22%);
+}
+
+.wan-login-footer {
+    margin-top: 2rem;
+    color: #94a3b8;
+    font-size: 0.72rem;
+    text-align: center;
+}
+
+.dark .wan-login-body .fi-simple-layout {
+    background:
+        radial-gradient(circle at 8% 8%, rgb(14 165 233 / 14%), transparent 28rem),
+        radial-gradient(circle at 92% 88%, rgb(37 99 235 / 16%), transparent 30rem),
+        #020617;
+}
+
+.dark .wan-login-body .fi-simple-main,
+.dark .wan-login-form-panel {
+    background: rgb(15 23 42 / 97%);
+}
+
+.dark .wan-login-form-heading h1 {
+    color: #f8fafc;
+}
+
+.dark .wan-login-form-description {
+    color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+    .wan-login-body .fi-simple-layout {
+        padding: 1rem;
+    }
+
+    .wan-login-grid {
+        min-height: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .wan-login-visual {
+        display: none;
+    }
+
+    .wan-login-form-panel {
+        min-height: min(42rem, calc(100dvh - 2rem));
+        padding: clamp(1.5rem, 7vw, 3.5rem);
+    }
+
+    .wan-login-mobile-brand {
+        display: block;
+        width: 11rem;
+        height: 7rem;
+        margin: 0 auto 2rem;
+        overflow: hidden;
+        border-radius: 1.25rem;
+        box-shadow: 0 16px 35px rgb(30 64 175 / 18%);
+    }
+
+    .wan-login-mobile-brand img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+@media (max-width: 480px) {
+    .wan-login-body .fi-simple-layout {
+        padding: 0;
+    }
+
+    .wan-login-body .fi-simple-main {
+        min-height: 100dvh;
+        border-radius: 0;
+    }
+
+    .wan-login-form-panel {
+        min-height: 100dvh;
+        padding: 1.5rem;
+    }
+
+    .wan-login-mobile-brand {
+        width: 9rem;
+        height: 5.75rem;
+    }
+}
+
 .fi-main {
     max-width: 100%;
     padding-inline: 10px;
