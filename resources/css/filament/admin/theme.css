@@ -108,7 +108,7 @@
 .wan-login-grid {
     display: grid;
     min-height: min(44rem, calc(100dvh - 3rem));
-    grid-template-columns: minmax(0, 1.08fr) minmax(25rem, 0.92fr);
+    grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
 }
 
 .wan-login-visual {
@@ -314,7 +314,7 @@
     color: #94a3b8;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
     .wan-login-body .fi-simple-layout {
         padding: 1rem;
     }
@@ -331,6 +331,15 @@
     .wan-login-form-panel {
         min-height: min(42rem, calc(100dvh - 2rem));
         padding: clamp(1.5rem, 7vw, 3.5rem);
+    }
+
+    .wan-login-form-heading,
+    .wan-login-form-description,
+    .wan-login-form-content,
+    .wan-login-footer {
+        width: 100%;
+        max-width: 28rem;
+        margin-inline: auto;
     }
 
     .wan-login-mobile-brand {
