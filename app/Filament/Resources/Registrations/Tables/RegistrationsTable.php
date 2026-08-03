@@ -7,6 +7,7 @@ use App\Models\Subject;
 use App\Models\Task;
 use App\Models\TaskDetail;
 use App\Models\User;
+use App\Services\RegistrationDriveService;
 use App\Services\RegistrationExportService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -14,6 +15,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -21,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class RegistrationsTable
 {
@@ -75,6 +78,13 @@ class RegistrationsTable
                     ])
                     ->listWithLineBreaks()
                     ->wrap(),
+                TextColumn::make('drive_location')
+                    ->label('Google Drive')
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? 'Open folder' : '-')
+                    ->url(fn ($record): ?string => $record->drive_location)
+                    ->openUrlInNewTab()
+                    ->icon(Heroicon::OutlinedFolderOpen)
+                    ->color('primary'),
                 TextColumn::make('user.name')->label('User'),
                 TextColumn::make('task_progress')
                     ->label('Submited Task')
@@ -124,6 +134,46 @@ class RegistrationsTable
                     ->sortable(),
             ])
             ->headerActions([
+                Action::make('createDrive')
+                    ->label('Create Drive')
+                    ->icon(Heroicon::OutlinedFolderPlus)
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Create Student Drive Folders')
+                    ->modalDescription('Create one folder for every registration in the selected subject and save each folder link.')
+                    ->modalSubmitActionLabel('Create folders')
+                    ->action(function ($livewire, Action $action): void {
+                        $subjectId = $livewire->getTableFilterState('subject_id')['value'] ?? null;
+
+                        if (blank($subjectId)) {
+                            $action->halt();
+
+                            return;
+                        }
+
+                        try {
+                            $result = app(RegistrationDriveService::class)->createFolders((int) $subjectId);
+                        } catch (Throwable $exception) {
+                            Notification::make()
+                                ->title('Drive folders were not completed')
+                                ->body($exception->getMessage())
+                                ->danger()
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('Drive folders completed')
+                            ->body("{$result['created']} created, {$result['linked']} existing folders linked, and {$result['skipped']} registrations skipped.")
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn ($livewire): bool => Auth::user()?->role?->name === 'superadmin'
+                        && filled($livewire->getTableFilterState('subject_id')['value'] ?? null)),
                 ActionGroup::make([
                     Action::make('exportPdf')
                         ->label('Export PDF')
