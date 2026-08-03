@@ -7,6 +7,7 @@ use App\Models\Subject;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,24 +17,30 @@ class ScheduleForm
     {
         return $schema
             ->components([
-            Select::make('subject_id')
-                ->label('Subject')
-                ->relationship('subject', 'name') // pakai relasi; HAPUS ->options()
-                ->getOptionLabelFromRecordUsing(fn (Subject $r) => "{$r->code} - {$r->name}")
-                ->searchable()
-                ->getSearchResultsUsing(function (string $search): array {
-                    return Subject::query()
-                        ->where(fn ($q) => $q
-                            ->where('code', 'like', "%{$search}%")
-                            ->orWhere('name', 'like', "%{$search}%"))
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn ($s) => [$s->id => "{$s->code} - {$s->name}"])
-                        ->toArray();
-                })
-                ->preload()   // optional: load opsi di awal kalau datanya kecil
-                ->required(),
-                Textarea::make("note")->label("Note"),
+                Select::make('subject_id')
+                    ->label('Subject')
+                    ->relationship('subject', 'name') // pakai relasi; HAPUS ->options()
+                    ->getOptionLabelFromRecordUsing(fn (Subject $r) => "{$r->code} - {$r->name}")
+                    ->searchable()
+                    ->getSearchResultsUsing(function (string $search): array {
+                        return Subject::query()
+                            ->where(fn ($q) => $q
+                                ->where('code', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%"))
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn ($s) => [$s->id => "{$s->code} - {$s->name}"])
+                            ->toArray();
+                    })
+                    ->preload()   // optional: load opsi di awal kalau datanya kecil
+                    ->required(),
+                Textarea::make('note')->label('Note'),
+                TextInput::make('drive_location')
+                    ->label('Google Drive Folder')
+                    ->placeholder('https://drive.google.com/drive/folders/...')
+                    ->helperText('Main Google Drive folder for all course materials and assignments.')
+                    ->url()
+                    ->maxLength(2048),
                 Hidden::make('period_id')
                     ->default(Period::where('default', '1')->first()->id),
                 Hidden::make('user_id')

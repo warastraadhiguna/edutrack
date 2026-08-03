@@ -11,6 +11,7 @@ class Schedule extends Model
         'subject_id',
         'period_id',
         'note',
+        'drive_location',
     ];
 
     public function user()
