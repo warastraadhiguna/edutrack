@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\Registrations\Pages\ListRegistrations;
 use App\Filament\Resources\Registrations\RegistrationResource;
+use App\Filament\Resources\Registrations\Tables\RegistrationsTable;
 use App\Models\Period;
 use App\Models\Registration;
 use App\Models\Schedule;
@@ -67,6 +68,49 @@ class RegistrationResourceTest extends TestCase
         $this->assertContains($ownDefaultRegistration->id, $visibleIds);
         $this->assertNotContains($ownNonDefaultRegistration->id, $visibleIds);
         $this->assertNotContains($otherUsersDefaultRegistration->id, $visibleIds);
+    }
+
+    public function test_subject_filter_options_only_include_subjects_from_the_default_period(): void
+    {
+        $superadmin = User::query()->findOrFail(1);
+
+        $defaultPeriod = Period::query()->create([
+            'name' => 'Current Period',
+            'default' => 1,
+        ]);
+
+        $archivedPeriod = Period::query()->create([
+            'name' => 'Archived Period',
+            'default' => 0,
+        ]);
+
+        $currentSubject = Subject::query()->create([
+            'user_id' => $superadmin->id,
+            'code' => 'CURRENT',
+            'name' => 'Current Subject',
+        ]);
+
+        $archivedSubject = Subject::query()->create([
+            'user_id' => $superadmin->id,
+            'code' => 'ARCHIVED',
+            'name' => 'Archived Subject',
+        ]);
+
+        Schedule::query()->create([
+            'user_id' => $superadmin->id,
+            'period_id' => $defaultPeriod->id,
+            'subject_id' => $currentSubject->id,
+        ]);
+
+        Schedule::query()->create([
+            'user_id' => $superadmin->id,
+            'period_id' => $archivedPeriod->id,
+            'subject_id' => $archivedSubject->id,
+        ]);
+
+        $this->assertSame([
+            $currentSubject->id => 'Current Subject',
+        ], RegistrationsTable::getSubjectOptions());
     }
 
     public function test_registration_exports_are_sorted_by_shortened_student_email(): void
