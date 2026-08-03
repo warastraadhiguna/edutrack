@@ -21,7 +21,7 @@ class QuickRegistrationService
             ->first();
 
         if (! $schedule) {
-            throw new InvalidArgumentException('Subject tidak ditemukan atau periodenya sudah tidak aktif.');
+            throw new InvalidArgumentException('The subject was not found or its period is no longer active.');
         }
 
         $emails = collect(preg_split('/[\s,;]+/', strtolower(trim($emailInput))) ?: [])
@@ -30,7 +30,7 @@ class QuickRegistrationService
             ->values();
 
         if ($emails->isEmpty()) {
-            throw new InvalidArgumentException('Masukkan minimal satu email siswa.');
+            throw new InvalidArgumentException('Enter at least one student email address.');
         }
 
         $invalidEmails = $emails
@@ -39,7 +39,7 @@ class QuickRegistrationService
 
         if ($invalidEmails->isNotEmpty()) {
             throw new InvalidArgumentException(
-                'Format email tidak valid: '.$invalidEmails->join(', ')
+                'Invalid email format: '.$invalidEmails->join(', ')
             );
         }
 
@@ -52,7 +52,7 @@ class QuickRegistrationService
 
         if ($missingEmails->isNotEmpty()) {
             throw new InvalidArgumentException(
-                'Email belum terdaftar sebagai user: '.$missingEmails->join(', ')
+                'These emails are not registered users: '.$missingEmails->join(', ')
             );
         }
 

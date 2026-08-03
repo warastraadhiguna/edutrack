@@ -25,13 +25,13 @@ class ListRegistrations extends ListRecords
     {
         return [
             Action::make('quickRegistration')
-                ->label('Registrasi Cepat')
+                ->label('Quick Registration')
                 ->icon(Heroicon::OutlinedUserPlus)
                 ->color('success')
-                ->modalHeading('Registrasi Siswa Cepat')
-                ->modalDescription('Pilih subject, lalu masukkan email siswa satu per baris.')
-                ->modalSubmitActionLabel('Simpan')
-                ->modalCancelActionLabel('Batal')
+                ->modalHeading('Quick Student Registration')
+                ->modalDescription('Select a subject, then enter one student email address per line.')
+                ->modalSubmitActionLabel('Save')
+                ->modalCancelActionLabel('Cancel')
                 ->schema([
                     Select::make('schedule_id')
                         ->label('Subject')
@@ -40,9 +40,9 @@ class ListRegistrations extends ListRecords
                         ->preload()
                         ->required(),
                     Textarea::make('emails')
-                        ->label('Data siswa')
+                        ->label('Student emails')
                         ->placeholder("23442424@gmail.com\n12342424@gmail.com\n56742424@gmail.com")
-                        ->helperText('Masukkan satu email pada setiap baris.')
+                        ->helperText('Enter one email address per line.')
                         ->rows(10)
                         ->required(),
                 ])
@@ -55,7 +55,7 @@ class ListRegistrations extends ListRecords
                         );
                     } catch (InvalidArgumentException $exception) {
                         Notification::make()
-                            ->title('Registrasi belum disimpan')
+                            ->title('Registrations were not saved')
                             ->body($exception->getMessage())
                             ->danger()
                             ->persistent()
@@ -66,14 +66,16 @@ class ListRegistrations extends ListRecords
                         return;
                     }
 
-                    $message = "{$result['created']} registration berhasil ditambahkan.";
+                    $registrationLabel = $result['created'] === 1 ? 'registration' : 'registrations';
+                    $message = "{$result['created']} {$registrationLabel} added successfully.";
 
                     if ($result['skipped'] > 0) {
-                        $message .= " {$result['skipped']} data yang sudah terdaftar dilewati.";
+                        $skippedLabel = $result['skipped'] === 1 ? 'existing registration was' : 'existing registrations were';
+                        $message .= " {$result['skipped']} {$skippedLabel} skipped.";
                     }
 
                     Notification::make()
-                        ->title('Registrasi berhasil disimpan')
+                        ->title('Registrations saved')
                         ->body($message)
                         ->success()
                         ->send();
@@ -98,7 +100,7 @@ class ListRegistrations extends ListRecords
             )
             ->get()
             ->mapWithKeys(fn (Schedule $schedule): array => [
-                $schedule->id => $schedule->subject?->name ?? 'Subject tidak tersedia',
+                $schedule->id => $schedule->subject?->name ?? 'Subject unavailable',
             ])
             ->all();
     }
