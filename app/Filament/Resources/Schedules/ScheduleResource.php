@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduleResource extends Resource
@@ -22,6 +23,14 @@ class ScheduleResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
     protected static \UnitEnum|string|null $navigationGroup = 'Semester Plan';
     protected static ?string $recordTitleAttribute = 'Schedule';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereHas('period', function (Builder $query): void {
+                $query->where('default', true);
+            });
+    }
 
     public static function form(Schema $schema): Schema
     {
