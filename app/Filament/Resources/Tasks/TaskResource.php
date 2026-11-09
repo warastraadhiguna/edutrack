@@ -8,6 +8,7 @@ use App\Filament\Resources\Tasks\Pages\ListTasks;
 use App\Filament\Resources\Tasks\Schemas\TaskForm;
 use App\Filament\Resources\Tasks\Tables\TasksTable;
 use App\Models\Period;
+use App\Models\Registration;
 use App\Models\Task;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TaskResource extends Resource
 {
@@ -32,9 +34,16 @@ class TaskResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->withCount('taskDetails')
+            ->withCount(['taskDetails' => fn (Builder $query) => $query
+                ->select(DB::raw('count(distinct task_details.user_id)'))
+                ->whereIn('task_details.user_id', Registration::query()
+                    ->select('student_user_id')
+                    ->whereColumn('registrations.schedule_id', 'tasks.schedule_id'))])
             ->with([
-                'schedule' => fn ($query) => $query->withCount('registrations'),
+                'schedule' => fn ($query) => $query->withCount([
+                    'registrations' => fn (Builder $query) => $query
+                        ->select(DB::raw('count(distinct registrations.student_user_id)')),
+                ]),
             ])
             ->whereHas('schedule', fn (Builder $query) => $query->where('period_id', Period::where('default', '1')->first()->id));
     }

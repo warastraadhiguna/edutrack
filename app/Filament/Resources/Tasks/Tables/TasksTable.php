@@ -4,10 +4,14 @@ namespace App\Filament\Resources\Tasks\Tables;
 
 use App\Models\Schedule;
 use App\Models\Subject;
+use App\Models\Task;
+use App\Services\TaskSubmissionService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -59,7 +63,21 @@ class TasksTable
                         '%d / %d',
                         $record->task_details_count ?? 0,
                         $record->schedule?->registrations_count ?? 0,
-                    )),
+                    ))
+                    ->color('primary')
+                    ->tooltip('View submitted and not submitted students')
+                    ->action(
+                        Action::make('viewSubmissions')
+                            ->modalHeading(fn (Task $record): string => 'Submissions: '.$record->name)
+                            ->modalWidth(Width::FourExtraLarge)
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                            ->modalContent(fn (Task $record) => view(
+                                'filament.tasks.submission-status',
+                                app(TaskSubmissionService::class)->students($record),
+                            ))
+                            ->visible(fn (): bool => in_array(Auth::user()?->role?->name, ['superadmin', 'admin'], true))
+                    ),
                 TextInputColumn::make('percentage')
                     ->label('Percentage')
                     ->alignRight()
